@@ -59,6 +59,14 @@ export async function createGame(req, res) {
   }
 }
 
+export async function currentGameId(req, res) {
+  return res.send(await db.get(`
+    SELECT id FROM games
+    ORDER BY createdAt DESC
+    LIMIT 1
+  `));
+}
+
 /**
  * Accepts date "YYYY-MM-DD" and time "HH:MM" (24h) and returns a human friendly string.
  * Example: ("2025-11-11", "18:30") -> "Nov 11th at 6:30 PM"

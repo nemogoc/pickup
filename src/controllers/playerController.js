@@ -52,3 +52,16 @@ export async function removePlayer(req, res) {
 
   res.send(`Removed player ${player.name} (${email})`);
 }
+
+export async function getPlayerId(req, res) {
+  const { email } = req.body;
+  if (!email) return res.status(400).send("Missing email");
+
+  const player = await db.get(`
+    SELECT id FROM players
+    WHERE email = ?
+  `, [email]);
+  if (!player) return res.status(404).send("Player not found");
+
+  res.send(player);
+}

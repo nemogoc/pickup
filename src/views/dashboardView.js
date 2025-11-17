@@ -27,6 +27,9 @@ export async function dashboardPage(req, res) {
       if (r.status in counts) counts[r.status]++;
     }
 
+    const players = await db.all(`
+      SELECT * FROM players
+    `);
 
     // Render a simple dashboard
     const html = `
@@ -43,11 +46,36 @@ export async function dashboardPage(req, res) {
             .no { color: red; font-weight: bold; }
             .maybe { color: orange; font-weight: bold; }
             .summary { margin: 1rem 0; font-size: 1.1rem; }
+            input, select{padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;max-width:360px;margin-top:6px}
+            button{margin-top:12px;padding:8px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+            @keyframes spin { to { transform: rotate(360deg); } }
           </style>
         </head>
         <body>
           <h1>🏀 Wednesday Night Basketball</h1>
           <h2>${game.date || "(no date)"} @ ${game.location || "(no location)"}</h2>
+          <hr>
+
+          <div class="respond" id="respond">
+            <h3>Make/Change RSVP</h3>
+            <form id="rsvpForm">
+              <label>Select Player:
+                <select id="rsvpPlayerSelect">
+                  ${players.map(p => `<option value="${p.email}">${p.name} (${p.email})</option>`).join("")}
+                </select>
+              </label>
+              <br>
+              <label>Select Response:
+                <select id="rsvpResponseSelect">
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="maybe">Maybe</option>
+                </select>
+              </label>
+              <br><button type="submit" id="rsvpSubmit">Submit RSVP</button>
+            </form>
+          </div>
+          <hr>
 
           <div class="summary">
             ✅ Yes: ${counts.yes} &nbsp; | &nbsp;
@@ -68,6 +96,7 @@ export async function dashboardPage(req, res) {
           <p style="margin-top:2rem;font-size:0.9rem;color:#888;">
             Auto-refreshes every 30 seconds.
           </p>
+          <script src="/pickup/static/dashboard.js"></script>
         </body>
       </html>
     `;
