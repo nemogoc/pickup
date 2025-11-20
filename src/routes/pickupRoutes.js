@@ -2,6 +2,7 @@ import express from "express";
 import { addPlayer, getPlayerId, removePlayer } from "../controllers/playerController.js";
 import { createGame, currentGameId } from "../controllers/gameController.js";
 import { respond } from "../controllers/responseController.js";
+import { broadcastEmail } from "../controllers/emailController.js";
 import { adminPage } from "../views/adminView.js";
 import { dashboardPage } from "../views/dashboardView.js";
 
@@ -24,5 +25,8 @@ router.get("/current-game", currentGameId);
 
 // RSVP respond
 router.get("/respond", respond);
+
+// email endpoints
+router.post("/broadcast-email", broadcastEmail)
 
 export default router;

@@ -9,7 +9,19 @@ async function postJSON(url, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
-  return res;
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(text || `Request failed: ${res.status}`);
+  }
+
+  // If body exists and looks like JSON, parse it
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return {}; // Return empty object for non-JSON responses
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -32,23 +44,42 @@ document.addEventListener("DOMContentLoaded", () => {
     createButton.innerHTML = `<span class="spinner" style="border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:16px;height:16px;display:inline-block;animation:spin 1s linear infinite;margin-right:8px"></span> Creating...`;
 
     try {
-      const res = await postJSON("/pickup/create-game", { date, time, location });
-      if (res.ok) {
-        const json = await res.json();
-        createMsg.textContent = `✅ Game created: ${json.date} at ${json.location}`;
-        createMsg.classList.add("success");
-      } else {
-        const txt = await res.text();
-        createMsg.textContent = `❌ ${txt || res.statusText}`;
-        createMsg.classList.add("error");
-      }
+      const json = await postJSON("/pickup/create-game", { date, time, location });
+      createMsg.textContent = `✅ Game created: ${json.date} at ${json.location}`;
+      createMsg.classList.add("success");
     } catch (err) {
-      createMsg.textContent = "⚠️ Network error";
+      createMsg.textContent = `❌ ${err.message || "Network error"}`;
       createMsg.classList.add("error");
-    } finally {
+    }finally {
       createButton.disabled = false;
       createButton.innerHTML = "Create Game";
     }
+  });
+
+  // Email broadcast
+  const broadcastForm = document.getElementById("broadcastEmailForm");
+  const broadcastBtn = document.getElementById("broadcastSendBtn");
+  const broadcastMsg = document.getElementById("broadcastStatus");
+
+  broadcastForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    broadcastBtn.disabled = true;
+    broadcastMsg.innerHTML = "Sending...";
+
+    const subject = document.getElementById("broadcastSubject").value;
+    const body = document.getElementById("broadcastBody").value;
+
+    try {
+      const result = (await postJSON("/pickup/broadcast-email", { subject, body }));
+      console.log("Broadcast response:", result);
+      broadcastMsg.innerHTML = `✔ Sent ${result.sent} emails!`;
+    } catch (err) {
+      broadcastMsg.innerHTML = "❌ Error sending emails.";
+      console.error(err);
+    }
+
+    broadcastBtn.disabled = false;
   });
   
   // Add Player
@@ -67,15 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const res = await postJSON("/pickup/add-player", { name, email });
-    if (res.ok) {
+    try {
+      await postJSON("/pickup/add-player", { name, email });
       addStatus.textContent = "✅ Player added";
       addStatus.classList.add("success");
-      // Optionally refresh the page to update dropdown
       setTimeout(() => location.reload(), 700);
-    } else {
-      const txt = await res.text();
-      addStatus.textContent = `❌ ${txt || res.statusText}`;
+    } catch (err) {
+      addStatus.textContent = `❌ ${err.message}`;
       addStatus.classList.add("error");
     }
   });
@@ -90,14 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = toEl("removePlayerSelect").value;
     if (!email) { removeStatus.textContent = "No player selected"; removeStatus.classList.add("error"); return; }
 
-    const res = await postJSON("/pickup/remove-player", { email });
-    if (res.ok) {
+    try {
+      await postJSON("/pickup/remove-player", { email });
       removeStatus.textContent = "✅ Player removed";
       removeStatus.classList.add("success");
       setTimeout(() => location.reload(), 700);
-    } else {
-      const txt = await res.text();
-      removeStatus.textContent = `❌ ${txt || res.statusText}`;
+    } catch (err) {
+      removeStatus.textContent = `❌ ${err.message}`;
       removeStatus.classList.add("error");
     }
   });

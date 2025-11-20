@@ -11,7 +11,6 @@ export async function adminPage(req, res) {
   <meta charset="utf-8">
   <title>Wednesday Basketball Admin Dashboard</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/pickup/static/admin.css">
   <style>
     body{font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding:24px; max-width:800px; margin: auto; background:#f7fafc}
     .card{background:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06);margin-bottom:16px}
@@ -42,6 +41,21 @@ export async function adminPage(req, res) {
       <div id="createGameMessage" class="response-message"></div>
     </form>
   </div>
+
+    <div class="card" id="send-email-card">
+      <h2>📢 Send Email to All Players</h2>
+
+      <form id="broadcastEmailForm">
+        <label>Subject:</label><br>
+        <input type="text" id="broadcastSubject" required style="width:300px;"><br><br>
+
+        <label>Message:</label><br>
+        <textarea id="broadcastBody" rows="6" style="width:300px;" required></textarea><br><br>
+
+        <button type="submit" id="broadcastSendBtn">Send Email</button>
+        <div id="broadcastStatus" style="margin-top:10px; font-weight: bold;"></div>
+      </form>
+    </div>
 
   <div class="card" id="add-player-card">
     <h2>Add Player</h2>

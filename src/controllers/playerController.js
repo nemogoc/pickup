@@ -9,8 +9,13 @@ import { db } from "../db/index.js";
 export async function addPlayer(req, res) {
   let players = req.body;
 
-  if (!players) return res.status(400).send("Missing request body");
-
+  if (!players) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing request body"
+    });
+  }
+    
   // Handle single-player case
   if (!Array.isArray(players)) {
     players = [players];
@@ -19,7 +24,10 @@ export async function addPlayer(req, res) {
   // Validate all entries
   const invalid = players.find(p => !p.name || !p.email);
   if (invalid) {
-    return res.status(400).send("Each player must have a name and email");
+    return res.status(400).json({
+      success: false,
+      message: "Each player must have a name and email"
+    });
   }
 
   // Insert players (ignore duplicates by email)
@@ -28,29 +36,50 @@ export async function addPlayer(req, res) {
     VALUES (?, ?, ?)
   `);
 
+  let insertedCount = 0;
+
   for (const player of players) {
-    await stmt.run(crypto.randomUUID(), player.name, player.email);
+    const result = await stmt.run(crypto.randomUUID(), player.name, player.email);
+    if (result.changes > 0) insertedCount++; 
   }
 
   await stmt.finalize();
 
-  res.send(`${players.length} player(s) added successfully.`);
+  return res.json({
+    success: true,
+    message: `${insertedCount} player(s) added`,
+    count: insertedCount
+  });
 }
 
-// Accepts player email
+/**
+ * Delete a player by email (and cleanup responses)
+ */
 export async function removePlayer(req, res) {
   const { email } = req.body;
-  if (!email) return res.status(400).send("Missing email");
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing email"
+    });
+  }
 
   const player = await db.get(`SELECT * FROM players WHERE email = ?`, [email]);
-  if (!player) return res.status(404).send("Player not found");
+  if (!player) {
+    return res.status(404).json({
+      success: false,
+      message: "Player not found"
+    });
+  }
 
   await db.run(`DELETE FROM players WHERE email = ?`, [email]);
-
-  // clean up any responses from this player
   await db.run(`DELETE FROM responses WHERE playerId = ?`, [player.id]);
 
-  res.send(`Removed player ${player.name} (${email})`);
+  return res.json({
+    success: true,
+    message: `Removed player ${player.name}`,
+    data: { email }
+  });
 }
 
 export async function getPlayerId(req, res) {

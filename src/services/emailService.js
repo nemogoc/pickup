@@ -11,13 +11,18 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Verify only once at startup (not per email!)
+transporter.verify()
+  .then(() => console.log("📨 Mailer verified and ready"))
+  .catch(err => console.error("❌ Mailer verification failed", err));
+
 /**
  * sendMail accepts { to, subject, text, html }
  */
 export async function sendMail(opts) {
   if (!process.env.EMAIL_USER) {
     console.warn("EMAIL_USER not set; skipping actual sendMail in development.");
-    return;
+    return Promise.resolve();
   }
 
   return transporter.sendMail({
