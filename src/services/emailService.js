@@ -25,8 +25,6 @@ export async function sendMail(opts) {
     return Promise.resolve();
   }
 
-  console.log("user name:" + process.env.EMAIL_USER_NAME);
-
   return transporter.sendMail({
     from: {
       name: process.env.EMAIL_USER_NAME,
