@@ -22,19 +22,14 @@ export async function createGame(req, res) {
     );
 
     // Send invitations
-    const players = await db.all(`SELECT * FROM players`);
+    const playersEmail = (await db.all(`SELECT email FROM players`))
+      .map(p => p.email);
     const baseUrl = process.env.BASE_URL;
     const subject = `Basketball: ${human} at ${location}`;
     const statusLink = `${baseUrl}/pickup/dashboard`;
 
-    if (players.length === 0) {
+    if (playersEmail.length === 0) {
         return res.send("No players in database yet. Add players first.");
-    }
-
-    const playersEmail = [];
-
-    for (const p of players) {
-      playersEmail.push(p.email);
     }
 
     const html = `

@@ -8,24 +8,12 @@ export async function broadcastEmail(req, res) {
     return res.status(400).json({ error: "Missing subject or message" });
   }
 
-  const players = await db.all("SELECT email FROM players WHERE email IS NOT NULL");
+  const playersEmail = (await db.all("SELECT email FROM players WHERE email IS NOT NULL"))
+      .map(p => p.email);
 
-  if (players.length === 0) {
+  if (playersEmail.length === 0) {
     return res.status(404).json({ error: "No players found" });
   }
 
-  const playersEmail = [];
-
-  for (const p of players) {
-    playersEmail.push(p.email);
-  }
-
-  await sendMail({
-        to: playersEmail,
-        subject,
-        html: body,
-        text: body
-  });
-
-  return res.json({ sent: players.length, message: "Emails sent!" });
+  return res.json({ sent: playersEmail.length, message: "Emails sent!" });
 }
