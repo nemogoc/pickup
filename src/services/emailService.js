@@ -10,14 +10,13 @@ export async function sendMail(opts) {
   console.log("sender", process.env.RESEND_EMAIL_FROM)
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_EMAIL_FROM,        // e.g. "You <you@yourdomain.com>"
-      to: opts.to,                           // string or array of emails
+      from: process.env.RESEND_EMAIL_FROM,
+      to: opts.to,
       subject: opts.subject,
       html: opts.html,
       text: opts.text,
       cc: opts.cc,
       bcc: opts.bcc,
-      // optionally more parameters...
     });
 
     if (error) {
@@ -25,7 +24,6 @@ export async function sendMail(opts) {
       throw new Error(`Resend error: ${error.message}`);
     }
 
-    // data contains info about the sent email (id, etc.)
     console.log("Resend sent:", data);
     return data;
   } catch (err) {
@@ -33,36 +31,3 @@ export async function sendMail(opts) {
     throw err;
   }
 }
-
-// import nodemailer from "nodemailer";
-
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS
-//   }
-// });
-
-// // Verify only once at startup (not per email!)
-// transporter.verify()
-//   .then(() => console.log("📨 Mailer verified and ready"))
-//   .catch(err => console.error("❌ Mailer verification failed", err));
-
-// /**
-//  * sendMail accepts { to, subject, text, html }
-//  */
-// export async function sendMail(opts) {
-//   if (!process.env.EMAIL_USER) {
-//     console.warn("EMAIL_USER not set; skipping actual sendMail in development.");
-//     return Promise.resolve();
-//   }
-
-//   return transporter.sendMail({
-//     from: {
-//       name: process.env.EMAIL_USER_NAME,
-//       address: process.env.EMAIL_USER
-//     },
-//     ...opts
-//   });
-// }
