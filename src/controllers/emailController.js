@@ -15,5 +15,12 @@ export async function broadcastEmail(req, res) {
     return res.status(404).json({ error: "No players found" });
   }
 
+  await sendMail({
+    to: playersEmail,
+    subject,
+    html: body,
+    text: body
+  });
+
   return res.json({ sent: playersEmail.length, message: "Emails sent!" });
 }
