@@ -24,6 +24,19 @@ async function postJSON(url, body) {
   }
 }
 
+async function loadLogs() {
+  const logs = await fetch("/pickup/logs").then(r => r.json());
+  const div = document.getElementById("logContainer");
+  div.innerHTML = logs.map(l => `
+    <div style="padding:4px;border-bottom:1px solid #ddd">
+      <b>${l.playerName}</b> → <u>${l.newResponse}</u>
+      ${l.priorResponse ? `(was ${l.priorResponse})` : ""}
+      <br/><small>${l.timestamp} | ${l.ip}</small>
+    </div>
+  `).join("");
+}
+loadLogs();
+
 document.addEventListener("DOMContentLoaded", () => {
   // Create Game
   const createForm = toEl("createGameForm");

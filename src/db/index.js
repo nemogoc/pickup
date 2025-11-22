@@ -8,24 +8,33 @@ export async function initDb() {
   // Create tables if they don't exist
   await db.exec(`
     CREATE TABLE IF NOT EXISTS players (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL
     );
     CREATE TABLE IF NOT EXISTS games (
-        id TEXT PRIMARY KEY,
-        date TEXT,
-        date_iso TEXT,
-        location TEXT,
-        createdAt TEXT DEFAULT (datetime('now'))
+      id TEXT PRIMARY KEY,
+      date TEXT,
+      date_iso TEXT,
+      location TEXT,
+      createdAt TEXT DEFAULT (datetime('now'))
     );
     CREATE TABLE IF NOT EXISTS responses (
-        id TEXT PRIMARY KEY,
-        gameId TEXT,
-        playerId TEXT,
-        status TEXT,
-        updatedAt TEXT,
-        UNIQUE (gameId, playerId)
+      id TEXT PRIMARY KEY,
+      gameId TEXT,
+      playerId TEXT,
+      status TEXT,
+      updatedAt TEXT,
+      UNIQUE (gameId, playerId)
+    );
+    CREATE TABLE IF NOT EXISTS rsvp_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp DATETIME DEFAULT (datetime('now')),
+      playerId TEXT NOT NULL,
+      gameId TEXT NOT NULL,
+      newResponse TEXT NOT NULL,
+      priorResponse TEXT,
+      ip TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_responses_game ON responses (gameId);

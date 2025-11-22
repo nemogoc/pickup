@@ -3,6 +3,7 @@ import { addPlayer, getPlayerId, removePlayer } from "../controllers/playerContr
 import { createGame, currentGameId } from "../controllers/gameController.js";
 import { respond } from "../controllers/responseController.js";
 import { broadcastEmail } from "../controllers/emailController.js";
+import { getLogs } from "../controllers/logsController.js";
 import { adminPage } from "../views/adminView.js";
 import { dashboardPage } from "../views/dashboardView.js";
 
@@ -10,6 +11,7 @@ const router = express.Router();
 
 // Admin UI
 router.get("/admin", adminPage);
+router.get("/logs", getLogs);
 
 // Dashboard UI
 router.get("/dashboard", dashboardPage);

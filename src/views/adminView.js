@@ -40,7 +40,7 @@ export async function adminPage(req, res) {
       <br><button type="submit" id="createGameButton" class="create-btn">Create Game</button>
       <div id="createGameMessage" class="response-message"></div>
     </form>
-  </div>
+    </div>
 
     <div class="card" id="send-email-card">
       <h2>📢 Send Email to All Players</h2>
@@ -56,6 +56,12 @@ export async function adminPage(req, res) {
         <div id="broadcastStatus" style="margin-top:10px; font-weight: bold;"></div>
       </form>
     </div>
+
+    <div class="card" id="view-logs-card">
+      <h2>Recent RSVP Logs</h2>
+      <div id="logContainer" style="max-height:250px; overflow-y:auto; border:1px solid #ccc; padding:8px; background:#fafafa"></div>
+    </div>
+
 
   <div class="card" id="add-player-card">
     <h2>Add Player</h2>

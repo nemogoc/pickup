@@ -10,12 +10,34 @@ export async function respond(req, res) {
     const { gameId, playerId, status } = req.query;
     if (!gameId || !playerId || !status) return res.status(400).send("Missing parameters");
 
-    const existing = await db.get(`SELECT id FROM responses WHERE gameId = ? AND playerId = ?`, [gameId, playerId]);
+    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const existing = await db.get(`SELECT id, status FROM responses WHERE gameId = ? AND playerId = ?`, [gameId, playerId]);
     if (existing) {
       await db.run(`UPDATE responses SET status = ?, updatedAt = datetime('now') WHERE id = ?`, [status, existing.id]);
     } else {
       await db.run(`INSERT INTO responses (id, gameId, playerId, status, updatedAt) VALUES (?, ?, ?, ?, datetime('now'))`, [crypto.randomUUID(), gameId, playerId, status]);
     }
+
+    await db.run(
+    `
+    INSERT INTO rsvp_logs (playerId, gameId, newResponse, priorResponse, ip)
+    VALUES (?, ?, ?, ?, ?)
+    `,
+    [
+      playerId,
+      gameId,
+      status,
+      existing ? existing.status : null,
+      ip
+    ]
+  );
+
+    console.log("📌 RSVP logged:", {
+    player: playerId,
+    newResponse: status,
+    priorResponse: existing ? existing.status : "none",
+    ip
+      });
 
     // Render a small response page
     res.send(`
