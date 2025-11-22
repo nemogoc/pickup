@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   rsvpForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const baseUrl = `http://localhost:10598`;
+    const baseUrl = process.env.BASEURL || `http://localhost:10598`;
     
 
     const player = toEl("rsvpPlayerSelect").value;
