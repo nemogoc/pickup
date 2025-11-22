@@ -4,8 +4,7 @@ import { db } from "../db/index.js";
 import { sendMail } from "../services/emailService.js";
 import cron from "node-cron";
 
-cron.schedule("0 19 * * 2", async () => {   // 7pm every Tuesday
-// cron.schedule("* * * * *", async () => {   // test mode  
+cron.schedule(process.env.REMINDER_CRON_SCHEDULE, async () => { 
   console.log("Running Tuesday attendance summary check...");
   await sendSummaryEmail();
 });
