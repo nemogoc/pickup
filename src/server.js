@@ -4,6 +4,8 @@ dotenv.config();
 import app from "./app.js";
 import { initDb } from "./db/index.js";
 
+import "./services/cronService.js";
+
 const PORT = process.env.PORT || 3000;
 
 (async () => {
