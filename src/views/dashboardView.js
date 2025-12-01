@@ -1,5 +1,13 @@
 import { db } from "../db/index.js";
 
+function parseServerDate(str) {
+  let formattedDate = new Date(str.replace(" ", "T") + "Z");
+  return formattedDate.toLocaleString([], {
+    dateStyle: "long",
+    timeStyle: "short"
+  });
+}
+
 export async function dashboardPage(req, res) {
   try {
     // Get the most recent game
@@ -25,6 +33,7 @@ export async function dashboardPage(req, res) {
     const counts = { yes: 0, no: 0, maybe: 0 };
     for (const r of responses) {
       if (r.status in counts) counts[r.status]++;
+      r.updatedAt = parseServerDate(r.updatedAt)
     }
 
     const players = await db.all(`

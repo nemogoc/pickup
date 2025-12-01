@@ -24,6 +24,14 @@ async function postJSON(url, body) {
   }
 }
 
+function parseServerDate(str) {
+  let formattedDate = new Date(str.replace(" ", "T") + "Z");
+  return formattedDate.toLocaleString([], {
+    dateStyle: "short",
+    timeStyle: "short"
+  });
+}
+
 async function loadLogs() {
   const logs = await fetch("/pickup/logs").then(r => r.json());
   const div = document.getElementById("logContainer");
@@ -31,7 +39,7 @@ async function loadLogs() {
     <div style="padding:4px;border-bottom:1px solid #ddd">
       <b>${l.playerName}</b> → <u>${l.newResponse}</u>
       ${l.priorResponse ? `(was ${l.priorResponse})` : ""}
-      <br/><small>${l.timestamp} | ${l.ip}</small>
+      <br/><small>${parseServerDate(l.timestamp)} | ${l.ip}</small>
     </div>
   `).join("");
 }
