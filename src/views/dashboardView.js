@@ -1,11 +1,15 @@
 import { db } from "../db/index.js";
 
 function parseServerDate(str) {
-  let formattedDate = new Date(str.replace(" ", "T") + "Z");
-  return formattedDate.toLocaleString([], {
-    dateStyle: "long",
-    timeStyle: "short"
-  });
+  const [datePart, timePart] = str.split(" ");
+  const [year, month, day] = datePart.split("-").map(Number);
+  const [hour, minute, second] = timePart.split(":").map(Number);
+
+  return new Date(Date.UTC(year, month - 1, day, hour, minute, second))
+    .toLocaleString([], {
+      dateStyle: "long",
+      timeStyle: "short"
+    });
 }
 
 export async function dashboardPage(req, res) {
@@ -58,6 +62,10 @@ export async function dashboardPage(req, res) {
             button{margin-top:12px;padding:8px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer}
             @keyframes spin { to { transform: rotate(360deg); } }
           </style>
+          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+          <link rel="manifest" href="/site.webmanifest">
         </head>
         <body>
           <h1>🏀 Wednesday Night Basketball</h1>

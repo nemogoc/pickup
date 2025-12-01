@@ -9,6 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static public files
 app.use("/pickup/static", express.static(path.join(process.cwd(), "public")));
+app.use(express.static(path.join(process.cwd(), "public")));
 
 // Mount pickup routes under /pickup
 app.use("/pickup", pickupRouter);
