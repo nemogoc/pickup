@@ -33,7 +33,6 @@ export async function dashboardPage(req, res) {
     const counts = { yes: 0, no: 0, maybe: 0 };
     for (const r of responses) {
       if (r.status in counts) counts[r.status]++;
-      r.updatedAt = parseServerDate(r.updatedAt)
     }
 
     const players = await db.all(`
@@ -98,7 +97,7 @@ export async function dashboardPage(req, res) {
               <tr>
                 <td>${r.name}</td>
                 <td class="${r.status}">${r.status}</td>
-                <td>${r.updatedAt || ""}</td>
+                <td>${parseServerDate(r.updatedAt) || ""}</td>
               </tr>`).join("")}
           </table>
 
