@@ -2,6 +2,12 @@ import { db } from "../db/index.js";
 
 export async function getLogs(req, res) {
   const logs = await db.all(`
+    WITH latest AS (
+      SELECT gameId
+      FROM rsvp_logs
+      ORDER BY timestamp DESC
+      LIMIT 1
+    )
     SELECT 
       r.timestamp,
       r.playerId,
@@ -11,6 +17,7 @@ export async function getLogs(req, res) {
       r.gameId,
       r.ip
     FROM rsvp_logs r
+    JOIN latest l ON r.gameId = l.gameId
     LEFT JOIN players p ON r.playerId = p.id
     ORDER BY r.timestamp DESC
     LIMIT 200
