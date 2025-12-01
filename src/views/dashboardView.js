@@ -1,15 +1,11 @@
 import { db } from "../db/index.js";
 
 function parseServerDate(str) {
-  const [datePart, timePart] = str.split(" ");
-  const [year, month, day] = datePart.split("-").map(Number);
-  const [hour, minute, second] = timePart.split(":").map(Number);
-
-  return new Date(Date.UTC(year, month - 1, day, hour, minute, second))
-    .toLocaleString([], {
-      dateStyle: "long",
-      timeStyle: "short"
-    });
+  let formattedDate = new Date(str.replace(" ", "T") + "Z");
+  return formattedDate.toLocaleString([], {
+    dateStyle: "long",
+    timeStyle: "short"
+  });
 }
 
 export async function dashboardPage(req, res) {
