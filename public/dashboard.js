@@ -11,18 +11,24 @@ async function postJSON(url, body) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const rsvpForm = toEl("rsvpForm");
+  const rsvpPlayer = toEl("rsvpPlayerSelect")
   const rsvpButton = toEl("rsvpSubmit");
+  const savedPlayer = localStorage.getItem("rsvpPlayer")
+
+  if (savedPlayer && rsvpPlayer) {
+    rsvpPlayer.value = savedPlayer;
+  }
+  rsvpPlayer?.addEventListener("change", () => {
+    localStorage.setItem("rsvpPlayer", rsvpPlayer.value);
+  });
 
   rsvpForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const baseUrl = window.location.origin;
-    console.log(baseUrl);
     
 
     const player = toEl("rsvpPlayerSelect").value;
-    console.log(player)
     const rsvp = toEl("rsvpResponseSelect").value;
-    console.log(rsvp)
 
     rsvpButton.disabled = true;
     rsvpButton.innerHTML = `<span class="spinner" style="border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:16px;height:16px;display:inline-block;animation:spin 1s linear infinite;margin-right:8px"></span> RSVPing...`;
