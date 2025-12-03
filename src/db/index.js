@@ -37,6 +37,12 @@ export async function initDb() {
       ip TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS guests (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      whoInvited TEXT
+    );
+
     CREATE INDEX IF NOT EXISTS idx_responses_game ON responses (gameId);
   `);
 }

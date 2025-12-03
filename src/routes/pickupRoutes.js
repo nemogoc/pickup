@@ -1,7 +1,7 @@
 import express from "express";
 import { addPlayer, getPlayerId, removePlayer } from "../controllers/playerController.js";
 import { createGame, currentGameId } from "../controllers/gameController.js";
-import { respond } from "../controllers/responseController.js";
+import { respond, addGuest } from "../controllers/responseController.js";
 import { broadcastEmail } from "../controllers/emailController.js";
 import { getLogs } from "../controllers/logsController.js";
 import { adminPage } from "../views/adminView.js";
@@ -27,8 +27,9 @@ router.get("/current-game", currentGameId);
 
 // RSVP respond
 router.get("/respond", respond);
+router.post("/add-guest", addGuest);
 
 // email endpoints
-router.post("/broadcast-email", broadcastEmail)
+router.post("/broadcast-email", broadcastEmail);
 
 export default router;
