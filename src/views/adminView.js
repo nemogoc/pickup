@@ -28,6 +28,8 @@ export async function adminPage(req, res) {
   <link rel="icon" type="image/png" sizes="32x32" href="/pickup/static/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/pickup/static/favicon-16x16.png">
   <link rel="manifest" href="/pickup/static/site.webmanifest">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
   <h1>🏀 Wednesday Basketball Admin Dashboard</h1>

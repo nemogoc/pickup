@@ -46,6 +46,70 @@ async function loadLogs() {
 loadLogs();
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Wednesday warning element
+  const dateInput = toEl("gameDate");
+
+  let wedWarning = document.createElement("div");
+  wedWarning.id = "wednesdayWarning";
+  wedWarning.style.marginTop = "6px";
+  wedWarning.style.fontWeight = "bold";
+  dateInput.insertAdjacentElement("afterend", wedWarning);
+
+  // Utility: next Wednesday (future only)
+  function getNextWednesday(from = new Date()) {
+    const date = new Date(from);
+    const day = date.getDay();
+    const diff = (3 - day + 7) % 7 || 7;  // Always next week if today is Wed
+    date.setDate(date.getDate() + diff);
+    return date;
+  }
+
+  const nextWed = getNextWednesday();
+
+  flatpickr("#gameDate", {
+    dateFormat: "Y-m-d",
+    defaultDate: nextWed,
+
+    onDayCreate: function(_, __, ___, dayElem) {
+      const d = dayElem.dateObj;
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      // Skip past days completely
+      if (d < today) return;
+
+      // Future Wednesdays → light green
+      if (d.getDay() === 3) {
+        dayElem.style.background = "#d4f7d4";
+        dayElem.style.borderRadius = "6px";
+        dayElem.style.fontWeight = "bold";
+      }
+
+      // Next Wednesday → darker green
+      if (
+        d.getFullYear() === nextWed.getFullYear() &&
+        d.getMonth() === nextWed.getMonth() &&
+        d.getDate() === nextWed.getDate()
+      ) {
+        dayElem.style.background = "#8be78b"; // darker shade
+        dayElem.style.borderRadius = "6px";
+        dayElem.style.fontWeight = "bold";
+      }
+    },
+
+    onChange: function(selectedDates) {
+      if (!selectedDates.length) return;
+
+      const d = selectedDates[0];
+      if (d.getDay() !== 3) {
+        wedWarning.textContent = "⚠️ This date is NOT a Wednesday. Are you sure?";
+        wedWarning.style.color = "#dc2626";
+      } else {
+        wedWarning.textContent = "";
+      }
+    }
+  });
+
   // Create Game
   const createForm = toEl("createGameForm");
   const createButton = toEl("createGameButton");
