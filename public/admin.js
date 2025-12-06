@@ -46,61 +46,77 @@ async function loadLogs() {
 loadLogs();
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Wednesday warning element
-  const dateInput = toEl("gameDate");
+  // ===============
+  // Shared Utilities
+  // ===============
+  function getNextWednesday(from = new Date()) {
+    const d = new Date(from);
+    d.setHours(0,0,0,0);
+    const offset = (3 - d.getDay() + 7) % 7 || 7; // always future Wednesday
+    d.setDate(d.getDate() + offset);
+    return d;
+  }
 
+  function isPast(dateObj) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return dateObj < today;
+  }
+
+  function highlightWednesdays(dayElem, nextWed) {
+    const d = dayElem.dateObj;
+
+    // Past days: no styling
+    if (isPast(d)) return;
+
+    // Future Wednesdays
+    if (d.getDay() === 3) {
+      dayElem.style.background = "#d4f7d4";
+      dayElem.style.borderRadius = "6px";
+      dayElem.style.fontWeight = "bold";
+    }
+
+    // Next Wednesday = darker highlight
+    if (
+      d.getFullYear() === nextWed.getFullYear() &&
+      d.getMonth() === nextWed.getMonth() &&
+      d.getDate() === nextWed.getDate()
+    ) {
+      dayElem.style.background = "#8be78b";
+      dayElem.style.borderRadius = "6px";
+      dayElem.style.fontWeight = "bold";
+    }
+  }
+
+
+
+  // =======================================
+  // CREATE GAME — "gameDate" Date Picker
+  // =======================================
+  const createDateInput = toEl("gameDate");
+
+  // Warning text
   let wedWarning = document.createElement("div");
   wedWarning.id = "wednesdayWarning";
   wedWarning.style.marginTop = "6px";
   wedWarning.style.fontWeight = "bold";
-  dateInput.insertAdjacentElement("afterend", wedWarning);
+  createDateInput.insertAdjacentElement("afterend", wedWarning);
 
-  // Utility: next Wednesday (future only)
-  function getNextWednesday(from = new Date()) {
-    const date = new Date(from);
-    const day = date.getDay();
-    const diff = (3 - day + 7) % 7 || 7;  // Always next week if today is Wed
-    date.setDate(date.getDate() + diff);
-    return date;
-  }
-
-  const nextWed = getNextWednesday();
+  const createNextWed = getNextWednesday();
 
   flatpickr("#gameDate", {
     dateFormat: "Y-m-d",
-    defaultDate: nextWed,
+    defaultDate: createNextWed,
+    minDate: "today",
 
-    onDayCreate: function(_, __, ___, dayElem) {
-      const d = dayElem.dateObj;
-      const today = new Date();
-      today.setHours(0,0,0,0);
-
-      // Skip past days completely
-      if (d < today) return;
-
-      // Future Wednesdays → light green
-      if (d.getDay() === 3) {
-        dayElem.style.background = "#d4f7d4";
-        dayElem.style.borderRadius = "6px";
-        dayElem.style.fontWeight = "bold";
-      }
-
-      // Next Wednesday → darker green
-      if (
-        d.getFullYear() === nextWed.getFullYear() &&
-        d.getMonth() === nextWed.getMonth() &&
-        d.getDate() === nextWed.getDate()
-      ) {
-        dayElem.style.background = "#8be78b"; // darker shade
-        dayElem.style.borderRadius = "6px";
-        dayElem.style.fontWeight = "bold";
-      }
+    onDayCreate(_, __, ___, dayElem) {
+      highlightWednesdays(dayElem, createNextWed);
     },
 
-    onChange: function(selectedDates) {
+    onChange(selectedDates, dateStr, instance) {
       if (!selectedDates.length) return;
-
       const d = selectedDates[0];
+
       if (d.getDay() !== 3) {
         wedWarning.textContent = "⚠️ This date is NOT a Wednesday. Are you sure?";
         wedWarning.style.color = "#dc2626";
@@ -109,6 +125,50 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  // =======================================
+  // EDIT GAME — "editGameDate" Date Picker
+  // =======================================
+  async function loadCurrentGame() {
+    try {
+      const game = await fetch("/pickup/current-game-details").then(r => r.json());
+      if (!game || game.error) return;
+
+      // Pre-fill fields
+      toEl("editGameLocation").value = game.location;
+      toEl("editGameTime").value = game.time;
+
+      const gameDateObj = new Date(game.date);
+      const nextWed = getNextWednesday();
+
+      flatpickr("#editGameDate", {
+        dateFormat: "Y-m-d",
+        defaultDate: game.date,
+        minDate: "today",
+
+        onDayCreate(_, __, ___, dayElem) {
+          highlightWednesdays(dayElem, nextWed);
+        },
+
+        onChange(selectedDates) {
+          if (!selectedDates.length) return;
+          const d = selectedDates[0];
+
+          if (d.getDay() !== 3) {
+            wedWarning.textContent = "⚠️ This date is NOT a Wednesday.";
+            wedWarning.style.color = "#dc2626";
+          } else {
+            wedWarning.textContent = "";
+          }
+        }
+      });
+
+    } catch (err) {
+      console.error("Could not load current game details", err);
+    }
+  }
+
+  loadCurrentGame();
 
   // Create Game
   const createForm = toEl("createGameForm");
@@ -138,6 +198,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }finally {
       createButton.disabled = false;
       createButton.innerHTML = "Create Game";
+    }
+  });
+
+  // Edit Most Recent Game
+  const editForm = toEl("editGameForm");
+  const editButton = toEl("editGameButton");
+  const editMsg = toEl("editGameMessage");
+
+  editForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    editMsg.textContent = "";
+    editMsg.className = "response-message";
+
+    const date = toEl("editGameDate").value;
+    const time = toEl("editGameTime").value;
+    const location = toEl("editGameLocation").value.trim();
+
+    if (!date || !time || !location) {
+      editMsg.textContent = "All fields required";
+      editMsg.classList.add("error");
+      return;
+    }
+
+    editButton.disabled = true;
+    editButton.innerHTML = `<span class="spinner" style="border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:16px;height:16px;display:inline-block;animation:spin 1s linear infinite;margin-right:8px"></span> Updating...`;
+
+    try {
+      const json = await postJSON("/pickup/edit-game", { date, time, location });
+      editMsg.textContent = `✅ Game updated: ${json.date} at ${json.location}`;
+      editMsg.classList.add("success");
+    } catch (err) {
+      editMsg.textContent = `❌ ${err.message}`;
+      editMsg.classList.add("error");
+    } finally {
+      editButton.disabled = false;
+      editButton.innerHTML = "Update Game";
     }
   });
 

@@ -37,7 +37,7 @@ export async function createGame(req, res) {
         <p>Next game is:</p>
         <p><strong>${human}</strong> at <strong>${location}</strong></p>
         <p>Can you make it?</p>
-        <p>RSVP, change your RSVP, and see who else will be at the next game <a href="${statusLink}">here</a></p>
+        <p><a href="${statusLink}">RSVP, change your RSVP, and see who else will be at the next game here</a></p>
         <p>See you on the court!</p>
     `;
 
@@ -47,6 +47,70 @@ export async function createGame(req, res) {
   } catch (err) {
     console.error("createGame error", err);
     res.status(500).send("Error creating game");
+  }
+}
+
+export async function editMostRecentGame(req, res) {
+  try {
+    const { date, time, location } = req.body;
+    if (!date || !time || !location) {
+      return res.status(400).send("date, time, and location are required");
+    }
+
+    const latest = await db.get(`
+      SELECT id FROM games
+      ORDER BY createdAt DESC
+      LIMIT 1
+    `);
+
+    if (!latest) {
+      return res.status(404).send("No game exists to edit.");
+    }
+
+    const human = formatDateTimeHuman(date, time);
+    const iso = `${date}T${time}:00`;
+
+    await db.run(
+      `UPDATE games
+       SET date = ?, date_iso = ?, location = ?
+       WHERE id = ?`,
+      [human, iso, location, latest.id]
+    );
+
+    res.json({ message: "Game updated", gameId: latest.id, date: human, location });
+  } catch (err) {
+    console.error("editMostRecentGame error", err);
+    res.status(500).send("Error updating the game");
+  }
+}
+
+export async function currentGameDetails(req, res) {
+  try {
+    const game = await db.get(`
+      SELECT id, date_iso, location
+      FROM games
+      ORDER BY createdAt DESC
+      LIMIT 1
+    `);
+
+    if (!game) {
+      return res.status(404).json({ error: "No games found" });
+    }
+
+    // No timezone shift — ISO is local time as saved
+    const date = game.date_iso.slice(0, 10);   // YYYY-MM-DD
+    const time = game.date_iso.slice(11, 16);  // HH:MM
+
+    res.json({
+      id: game.id,
+      date,
+      time,
+      location: game.location
+    });
+
+  } catch (err) {
+    console.error("currentGameDetails error:", err);
+    res.status(500).json({ error: "Error fetching game" });
   }
 }
 
@@ -64,10 +128,18 @@ export async function currentGameId(req, res) {
  */
 function formatDateTimeHuman(dateStr, timeStr) {
   const [hour, minute] = timeStr.split(":").map(Number);
-  const gameDate = new Date(dateStr);
-  gameDate.setHours(hour, minute);
-  const options = { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" };
-  let formattedDate = new Intl.DateTimeFormat("en-US", options).format(gameDate);
 
-  return formattedDate;
+  const [year, month, day] = dateStr.split("-").map(Number);
+
+  // Create a LOCAL date
+  const gameDate = new Date(year, month - 1, day, hour, minute); 
+
+  const options = { 
+    month: "short", 
+    day: "numeric", 
+    hour: "numeric", 
+    minute: "2-digit" 
+  };
+
+  return new Intl.DateTimeFormat("en-US", options).format(gameDate);
 }

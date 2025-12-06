@@ -47,7 +47,29 @@ export async function adminPage(req, res) {
       <div id="createGameMessage" class="response-message"></div>
     </form>
     </div>
+    <div class="card" id="edit-game-card">
+      <h2>Edit Most Recent Game</h2>
+      <form id="editGameForm">
+        <label>Date:</label>
+        <input type="text" id="editGameDate" class="flatpickr"/>
 
+        <label>Time:</label>
+        <input type="time" id="editGameTime"/>
+
+        <label>Location:</label>
+        <input type="text" id="editGameLocation"/>
+
+        <button id="editGameButton" type="submit">Update Game</button>
+
+        <p id="editGameMessage" class="response-message"></p>
+      </form>
+    </div>
+    
+    <div class="card" id="view-logs-card">
+      <h2>Recent RSVP Logs</h2>
+      <div id="logContainer" style="max-height:250px; overflow-y:auto; border:1px solid #ccc; padding:8px; background:#fafafa"></div>
+    </div>
+    
     <div class="card" id="send-email-card">
       <h2>📢 Send Email to All Players</h2>
 
@@ -63,36 +85,30 @@ export async function adminPage(req, res) {
       </form>
     </div>
 
-    <div class="card" id="view-logs-card">
-      <h2>Recent RSVP Logs</h2>
-      <div id="logContainer" style="max-height:250px; overflow-y:auto; border:1px solid #ccc; padding:8px; background:#fafafa"></div>
+    <div class="card" id="add-player-card">
+      <h2>Add Player</h2>
+      <form id="addPlayerForm">
+        <label>Name
+        <input type="text" id="playerName" required></label>
+        <label>Email
+        <input type="email" id="playerEmail" required></label>
+        <button type="submit">Add Player</button>
+        <div id="addStatus" class="response-message"></div>
+      </form>
     </div>
 
-
-  <div class="card" id="add-player-card">
-    <h2>Add Player</h2>
-    <form id="addPlayerForm">
-      <label>Name
-      <input type="text" id="playerName" required></label>
-      <label>Email
-      <input type="email" id="playerEmail" required></label>
-      <button type="submit">Add Player</button>
-      <div id="addStatus" class="response-message"></div>
-    </form>
-  </div>
-
-  <div class="card" id="remove-player-card">
-    <h2>Remove Player</h2>
-    <form id="removePlayerForm">
-      <label>Select Player:
-        <select id="removePlayerSelect">
-          ${players.map(p => `<option value="${p.email}">${p.name} (${p.email})</option>`).join("")}
-        </select>
-      </label>
-      <button type="submit" class="danger">Remove Player</button>
-      <div id="removeStatus" class="response-message"></div>
-    </form>
-  </div>
+    <div class="card" id="remove-player-card">
+      <h2>Remove Player</h2>
+      <form id="removePlayerForm">
+        <label>Select Player:
+          <select id="removePlayerSelect">
+            ${players.map(p => `<option value="${p.email}">${p.name} (${p.email})</option>`).join("")}
+          </select>
+        </label>
+        <button type="submit" class="danger">Remove Player</button>
+        <div id="removeStatus" class="response-message"></div>
+      </form>
+    </div>
 
   <script src="/pickup/static/admin.js"></script>
 </body>
