@@ -102,7 +102,7 @@ export async function dashboardPage(req, res) {
             <form id="rsvpForm">
               <label>Select Player:
                 <select id="rsvpPlayerSelect">
-                  ${players.map(p => `<option value="${p.email}">${p.name} (${p.email})</option>`).join("")}
+                  ${players.map(p => `<option value="${p.email}">${p.name}</option>`).join("")}
                 </select>
               </label>
               <br>
