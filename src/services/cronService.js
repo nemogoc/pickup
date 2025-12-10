@@ -11,7 +11,7 @@ cron.schedule(process.env.REMINDER_CRON_SCHEDULE, async () => {
   await sendSummaryEmail();
 });
 
-export async function sendSummaryEmail() {
+async function sendSummaryEmail() {
   const tomorrow = DateTime.now().setZone("America/Chicago").plus({ days:1 });
  
   const isoPrefix = tomorrow.toISODate() + "%";
