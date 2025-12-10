@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "luxon": "^3.7.2",
     "node-cron": "^4.2.1",
     "resend": "^6.5.2",
     "sqlite": "^5.1.1",

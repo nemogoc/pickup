@@ -34,4 +34,17 @@ router.post("/add-guest", addGuest);
 // email endpoints
 router.post("/broadcast-email", broadcastEmail);
 
+//test endpoint
+import { sendSummaryEmail } from "../services/cronService.js";
+
+router.get("/test-summary-email", async (req, res) => {
+  try {
+    await sendSummaryEmail(true); // pass debug flag if you want
+    res.send("Summary email executed manually.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error running summary email");
+  }
+});
+
 export default router;
