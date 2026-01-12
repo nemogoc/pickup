@@ -1,33 +1,51 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+console.log("EMAIL CONFIG CHECK", {
+  GMAIL_USER: process.env.GMAIL_USER,
+  HAS_PASSWORD: !!process.env.GMAIL_APP_PASSWORD,
+  EMAIL_FROM: process.env.GMAIL_EMAIL_FROM,
+});
 
+// Create reusable transporter
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true = SSL
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+/**
+ * opts: {
+ *   to: string | string[],
+ *   subject: string,
+ *   html?: string,
+ *   text?: string,
+ *   cc?: string | string[],
+ *   bcc?: string | string[]
+ * }
+ */
 export async function sendMail(opts) {
-  // opts: { to, subject, html, text, bcc, cc, etc. }
-  console.log("sender", process.env.RESEND_EMAIL_FROM)
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_EMAIL_FROM,
+    const info = await transporter.sendMail({
+      from: process.env.GMAIL_EMAIL_FROM,
       to: opts.to,
       subject: opts.subject,
-      html: opts.html,
       text: opts.text,
+      html: opts.html,
       cc: opts.cc,
       bcc: opts.bcc,
     });
 
-    if (error) {
-      console.error("Resend send error:", error);
-      throw new Error(`Resend error: ${error.message}`);
-    }
-
-    console.log("Resend sent:", data);
-    return data;
+    console.log("Gmail sent:", info.messageId);
+    return info;
   } catch (err) {
-    console.error("Failed to send via Resend:", err);
+    console.error("Failed to send email via Gmail:", err);
     throw err;
   }
 }
