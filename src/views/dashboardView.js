@@ -205,22 +205,6 @@ export async function dashboardPage(req, res) {
       <div class="no">❌ ${counts.no}</div>
     </section>
 
-    <!-- Attendance -->
-    <section>
-      <h3>Who's Coming</h3>
-      <div class="list">
-        ${responses.map(r => `
-          <div class="row">
-            <div class="name ${r.type === 'guest' ? 'guest' : ''}">
-              ${r.name}${r.type === 'guest' ? ' (guest)' : ''}
-              <div class="updated">${parseServerDate(r.updatedAt)}</div>
-            </div>
-            <div class="${r.status}">${r.status}</div>
-          </div>
-        `).join("")}
-      </div>
-    </section>
-
     <!-- RSVP -->
     <section id="respond">
       <h3>Make / Change RSVP</h3>
@@ -239,6 +223,22 @@ export async function dashboardPage(req, res) {
 
         <button type="submit" id="rsvpSubmit">Submit RSVP</button>
       </form>
+    </section>
+
+    <!-- Attendance -->
+    <section>
+      <h3>Who's Coming</h3>
+      <div class="list">
+        ${responses.map(r => `
+          <div class="row">
+            <div class="name ${r.type === 'guest' ? 'guest' : ''}">
+              ${r.name}${r.type === 'guest' ? ' (guest)' : ''}
+              <div class="updated">${parseServerDate(r.updatedAt)}</div>
+            </div>
+            <div class="${r.status}">${r.status}</div>
+          </div>
+        `).join("")}
+      </div>
     </section>
 
     <!-- Guest -->
