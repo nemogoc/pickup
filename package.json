@@ -1,6 +1,6 @@
 {
   "name": "pickup",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "description": "",
   "main": "src/server.js",
   "scripts": {
@@ -14,8 +14,7 @@
     "express": "^5.1.0",
     "luxon": "^3.7.2",
     "node-cron": "^4.2.1",
-    "nodemailer": "^7.0.12",
-    "resend": "^6.5.2",
+    "nodemailer": "^9.0.5",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   }
